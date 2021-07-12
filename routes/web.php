@@ -23,3 +23,5 @@ Route::get('/', function () {
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', ShowPosts::class)->name('dashboard');
 Route::get('prueba/{name}', ShowPosts::class);
+
+// cap 16 inicio

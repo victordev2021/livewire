@@ -14,15 +14,23 @@ class ShowPosts extends Component
     use WithPagination;
     // public $title;
     // public $name;
-    public $search, $post, $image, $identificador;
+    public $post, $image, $identificador;
+    public $search = '';
     public $sort = 'id';
     public $direction = 'desc';
     public $open_edit = false;
-    public $cant = 5;
-    protected $listeners = ['render'];
+    public $cant = '5';
+    public $readyToLoad = false;
+    protected $listeners = ['render', 'delete'];
     protected $rules = [
         'post.title' => 'required',
         'post.content' => 'required',
+    ];
+    protected $queryString = [
+        'cant' => ['except' => '5'],
+        'sort' => ['except' => 'id'],
+        'direction' => ['except' => 'desc'],
+        'search' => ['except' => '']
     ];
     public function mount()
     {
@@ -31,11 +39,22 @@ class ShowPosts extends Component
     }
     public function render()
     {
-        $posts = Post::where('title', 'like', '%' . $this->search . '%')
-            ->orWhere('content', 'like', '%' . $this->search . '%')
-            ->orderBy($this->sort, $this->direction)
-            ->paginate($this->cant);
+        if ($this->readyToLoad) {
+            # code...
+            $posts = Post::where('title', 'like', '%' . $this->search . '%')
+                ->orWhere('content', 'like', '%' . $this->search . '%')
+                ->orderBy($this->sort, $this->direction)
+                ->paginate($this->cant);
+        } else {
+            # code...
+            $posts = [];
+        }
         return view('livewire.show-posts', compact('posts'));
+    }
+    public function loadPosts()
+    {
+        # code...
+        $this->readyToLoad = true;
     }
     public function order($sort)
     {
@@ -74,5 +93,9 @@ class ShowPosts extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+    }
+    public function delete(Post $post)
+    {
+        $post->delete();
     }
 }

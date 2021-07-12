@@ -1,4 +1,4 @@
-<div>
+<div wire:init='loadPosts'>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Dashboard') }}
@@ -12,7 +12,7 @@
         <x-table>
             {{-- {{ $search }} --}}
             {{-- slot --}}
-            @if ($posts->count() > 0)
+            @if (count($posts) > 0)
                 <table class="min-w-full leading-normal">
                     <thead>
                         <tr>
@@ -80,9 +80,12 @@
                                         {{ $item->content }}
                                     </p>
                                 </td>
-                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <td class="flex px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <a wire:click="edit({{ $item }})" class="btn btn-green">
                                         <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a wire:click="$emit('deletePost',{{ $item->id }})" class="btn btn-red ml-2">
+                                        <i class="fas fa-trash"></i>
                                     </a>
                                     {{-- @livewire('edit-post', ['post' => $post], key($post->id)) --}}
                                 </td>
@@ -90,12 +93,14 @@
                         @endforeach
                     </tbody>
                 </table>
+                @if ($posts->hasPages())
+                    <div class="px-6 py-3">
+                        {{ $posts->links() }}
+                    </div>
+                @endif
             @else
-                <p>No existen registros!!!</p>
-            @endif
-            @if ($posts->hasPages())
-                <div class="px-6 py-3">
-                    {{ $posts->links() }}
+                <div class="fa-3x self-center mx-auto">
+                    <i class="fas fa-spinner fa-spin"></i>
                 </div>
             @endif
         </x-table>
@@ -143,4 +148,30 @@
             {{-- <span wire:loading wire:target="save">cargando...</span> --}}
         </x-slot>
     </x-jet-dialog-modal>
+    @push('js')
+        <script>
+            Livewire.on('deletePost', postId => {
+                Swal.fire({
+                    title: 'Está segur@ de eliminar este registro?',
+                    text: "Los datos eliminados no podrán ser recuperados!",
+                    icon: 'Advertencia',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar registro!',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Livewire.emitTo('show-posts', 'delete', postId)
+                        Swal.fire(
+                            'Eliminado!',
+                            'El registro ha sido eliminado correctamente.',
+                            'success'
+                        )
+                    }
+                })
+                // console.log('Evento delete capturado!!!');
+            })
+        </script>
+    @endpush
 </div>

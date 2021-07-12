@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
 
     @livewireStyles
+    @stack('css')
 
     <!-- Scripts -->
     <script src="{{ mix('js/app.js') }}" defer></script>
@@ -46,6 +47,7 @@
     @stack('modals')
 
     @livewireScripts
+    @stack('js')
     <script>
         Livewire.on('alert', function(message) {
             Swal.fire({
